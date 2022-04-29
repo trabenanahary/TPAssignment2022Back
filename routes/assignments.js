@@ -45,7 +45,7 @@ function postAssignmentsForEachStudent(req, res) {
 }
 
 // Recupérer tous les assignements avec ses references (eleveRef, matiereRef)
-function getAssignementsComplete(req, res) {
+function getAssignmentsComplete(req, res) {
     Assignment
     .find()
     .populate("eleveRef")
