@@ -61,7 +61,7 @@ app.route(prefix + '/assignmentsEachStudent')
   .put(assignment.updateAssignment);
 
 app.route(prefix + '/assignmentsComplete')
-  .get(assignment.getAssignementsComplete);
+  .get(assignment.getAssignmentsComplete);
 
 app.route(prefix + '/assignments')
   .get(assignment.getAssignments);
