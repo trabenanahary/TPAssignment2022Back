@@ -2,13 +2,13 @@ let express = require('express');
 let app = express();
 let bodyParser = require('body-parser');
 let assignment = require('./routes/assignments');
-let mongoose = require('mongoose');
+let matiere = require('./routes/matieres');
 
+let mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 //mongoose.set('debug', true);
 
 // remplacer toute cette chaine par l'URI de connexion à votre propre base dans le cloud s
-//const uri = 'mongodb+srv://mb:toto@cluster0.xtr0u.mongodb.net/assignments?retryWrites=true&w=majority';
 const uri = 'mongodb+srv://dbMicka:dbMickamdp@cluster0.27dos.mongodb.net/assignments?retryWrites=true&w=majority';
 
 const options = {
@@ -44,16 +44,36 @@ let port = process.env.PORT || 8010;
 // les routes
 const prefix = '/api';
 
-app.route(prefix + '/assignments')
-  .get(assignment.getAssignments)
-  .post(assignment.postAssignment)
+app.route(prefix + '/deleteAssignment/:id')
+  .delete(assignment.deleteAssignment);
+
+app.route(prefix + '/editAssignment')
   .put(assignment.updateAssignment);
+
+app.route(prefix + '/noteAssignment')
+  .put(assignment.putAssignmentWithNote);
+
+app.route(prefix + '/matieresComplete')
+  .get(matiere.getMatieresComplete);
+
+app.route(prefix + '/assignmentsEachStudent')
+  .post(assignment.postAssignmentsForEachStudent)
+  .put(assignment.updateAssignment);
+
+app.route(prefix + '/assignmentsComplete')
+  .get(assignment.getAssignementsComplete);
+
+app.route(prefix + '/assignments')
+  .get(assignment.getAssignments);
 
 app.route(prefix + '/assignments/:id')
   .get(assignment.getAssignment)
   .delete(assignment.deleteAssignment);
 
- 
+
+app.route(prefix + '/assignments')
+  .post(assignment.postAssignment)
+  .put(assignment.updateAssignment);
 
 // On démarre le serveur
 app.listen(port, "0.0.0.0");

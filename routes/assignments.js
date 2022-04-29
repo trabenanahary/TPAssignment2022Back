@@ -1,7 +1,65 @@
 let Assignment = require('../model/assignment');
+let Matiere = require('../model/matiere')
+
+// noter un assignment
+function putAssignmentWithNote(req, res) {
+    let assignment = null;
+    assignment = new Assignment(req.body);
+    assignment.rendu = true;
+    Assignment.findByIdAndUpdate(assignment._id, assignment, {new: true}, (err, assignment) => {
+        if (err) {
+            console.log(err);
+            res.send(err)
+        } else {
+          res.json({message: 'updated note'})
+        }
+
+      // console.log('updated ', assignment)
+    });
+}
+
+// Ajout assignment pour chaque eleve
+function postAssignmentsForEachStudent(req, res) {
+    Matiere
+    .findById(req.body.matiereRef)
+    .exec((err, matiere) => {
+        if(err){
+            res.send(err)
+        }
+        const matiereObj = new Matiere(matiere);
+        if(matiereObj.eleve.length == 0) {
+            res.send({errorEmptyStudent:"aucun élève pour ce matiere"})
+        } 
+        let assignment = null;
+        for(let i=0; i<matiereObj.eleve.length; i++) {
+            assignment = new Assignment(req.body);
+            assignment.eleveRef = matiereObj.eleve[i]
+            assignment.save( (err) => {
+                if(err){
+                    res.send('cant post assignment ', err);
+                }
+            })
+        } 
+        res.json({ message: `saved!`})      
+    })
+}
+
+// Recupérer tous les assignements avec ses references (eleveRef, matiereRef)
+function getAssignementsComplete(req, res) {
+    Assignment
+    .find()
+    .populate("eleveRef")
+    .populate("matiereRef", "-eleve")
+    .exec((err, assign) => {
+        if(err){
+            res.send(err)
+        }
+
+        res.send(assign);
+    })
+}
 
 // Récupérer tous les assignments (GET)
-/*
 function getAssignments(req, res){
     Assignment.find((err, assignments) => {
         if(err){
@@ -11,23 +69,6 @@ function getAssignments(req, res){
         res.send(assignments);
     });
 }
-*/
-function getAssignments(req, res) {
-    var aggregateQuery = Assignment.aggregate();
-    Assignment.aggregatePaginate(aggregateQuery,
-      {
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10,
-      },
-      (err, assignments) => {
-        if (err) {
-          res.send(err);
-        }
-        res.send(assignments);
-      }
-    );
-   }
-   
 
 // Récupérer un assignment par son id (GET)
 function getAssignment(req, res){
@@ -54,20 +95,19 @@ function postAssignment(req, res){
         if(err){
             res.send('cant post assignment ', err);
         }
-        res.json({ message: `${assignment.nom} saved depuis la version HEROKU!`})
+        res.json({ message: `${assignment.nom} saved!`})
     })
 }
 
 // Update d'un assignment (PUT)
 function updateAssignment(req, res) {
-    console.log("UPDATE recu assignment : ");
-    console.log(req.body);
-    Assignment.findByIdAndUpdate(req.body._id, req.body, {new: true}, (err, assignment) => {
+    let assignment = null;
+    assignment = new Assignment(req.body);
+    Assignment.findByIdAndUpdate(assignment._id, assignment, {new: true}, (err, assignment) => {
         if (err) {
-            console.log(err);
             res.send(err)
         } else {
-          res.json({message: `${assignment.nom} updated!`})
+          res.json({message: 'updated'})
         }
 
       // console.log('updated ', assignment)
@@ -88,4 +128,13 @@ function deleteAssignment(req, res) {
 
 
 
-module.exports = { getAssignments, postAssignment, getAssignment, updateAssignment, deleteAssignment };
+module.exports = { 
+    getAssignments, 
+    postAssignment, 
+    getAssignment, 
+    updateAssignment, 
+    deleteAssignment, 
+    getAssignementsComplete, 
+    postAssignmentsForEachStudent,
+    putAssignmentWithNote
+};
