@@ -134,7 +134,7 @@ module.exports = {
     getAssignment, 
     updateAssignment, 
     deleteAssignment, 
-    getAssignementsComplete, 
+    getAssignmentsComplete, 
     postAssignmentsForEachStudent,
     putAssignmentWithNote
 };
